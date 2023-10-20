@@ -6,23 +6,20 @@
 #Call "bash PDAC_mIHC_paper.sh" from the command line to run this script.
 
 #create directory structure
-mkdir {data,results}
+mkdir results
 cd results
 mkdir {dfCreated,figures,tables} #three subfolders in results
 cd dfCreated
 mkdir updatedCsvs
 cd ../figures
 mkdir figureS4F
-cd ../../data #enter data folder
+cd ../.. #go back to home directory to download data
 
 #download data from Zenodo: DOI: 10.5281/zenodo.8357193
 #all data lives in data.zip file, which contains 2 folders: mIHC_files and metadata
-zenodo_get 8357193
-#unzip data.zip file
+wget https://zenodo.org/records/8357193/files/data.zip
+#unzip data.zip file to create data folder
 unzip data.zip
-
-#navigate back to main PDAC_mIHC_paper directory
-cd ..
 
 #run python script to generate results and figures
 python pdacMakeFigures.py
