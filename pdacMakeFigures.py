@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Code author: Katie E. Blise
-Date: September 2023
+Date: October 2023
 
 This .py file contains all code needed to reproduce the figures in the paper:
-"Leveraging machine learning to interrogate T cell functionality and spatial localization within pancreatic tumor microenvironments"
+"Machine learning links T cell function and spatial localization to neoadjuvant immunotherapy and clinical outcome in pancreatic cancer"
 
 
 This .py file contains multiple functions:
