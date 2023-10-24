@@ -1,6 +1,6 @@
 # Machine learning links T cell function and spatial localization to neoadjuvant immunotherapy and clinical outcome in pancreatic cancer
 
-This repository contains all code necessary to reproduce the results and figures of the manuscript "Machine learning links T cell function and spatial localization to neoadjuvant immunotherapy and clinical outcome in pancreatic cancer," which can be found as a preprint here: [TEXT TO APPEAR](HYPERLINK). All data, including the output of the multiplex immunohistochemistry computational imaging processing workflow for each tissue region and metadata for each patient/region, are available on Zenodo: [DOI: 10.5281/zenodo.8357193](https://doi.org/10.5281/zenodo.8357193).
+This repository contains all code necessary to reproduce the results and figures of the manuscript "Machine learning links T cell function and spatial localization to neoadjuvant immunotherapy and clinical outcome in pancreatic cancer," which can be found as a preprint here: [https://www.biorxiv.org/content/10.1101/2023.10.20.563335v1](https://www.biorxiv.org/content/10.1101/2023.10.20.563335v1). All data, including the output of the multiplex immunohistochemistry computational imaging processing workflow for each tissue region and metadata for each patient/region, are available on Zenodo: [DOI: 10.5281/zenodo.8357193](https://doi.org/10.5281/zenodo.8357193).
 
 # Steps to Create Figures
 
