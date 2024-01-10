@@ -15,7 +15,7 @@ cd ../figures
 mkdir figureS4F
 cd ../.. #go back to home directory to download data
 
-#download data from Zenodo: DOI: 10.5281/zenodo.8357193
+#download data from Zenodo: DOI: 10.5281/zenodo.10476868
 #all data lives in data.zip file, which contains 2 folders: mIHC_files and metadata
 wget https://zenodo.org/records/10476868/files/data.zip
 #unzip data.zip file to create data folder
