@@ -31,8 +31,8 @@ This .py file contains multiple functions:
     createCsvsWithClusterCol() = update region mIHC csvs with added cluster column to denote each cell's RCN assignment
    
     ***FUNCTIONS TO GENERATE ALL RESULTS (which call to the above functions)***
-    fig1() = generates Figure 1C
-    fig2() = generates Figures 2A-2C, Supplementary Tables S3-S5
+    fig1() = generates Figure 1C, Supplementary Figure S1A, Supplementary Table S2
+    fig2() = generates Figures 2A-2C, Supplementary Tables S4-S6
     fig3() = generates Figures 3A-3C, 3E, Supplementary Figures S2A-S2E
     fig4() = generates Figures 4A-4C, 4E, Supplementary Figures S3A, S3B
     fig5() = generates Figures 5B-5H, Supplementary Figures S4A-S4F
@@ -1455,16 +1455,19 @@ def createCsvsWithClusterCol(path,csvList):
 
 def fig1():
     '''
-    Designing a novel mIHC antibody panel to deeply phenotype T cells within the PDAC TME.
-    This function creates figure 1C. 
+    Novel mIHC antibody panel deeply phenotypes T cells within the PDAC TME.
+    This function creates figure 1C and supplementary figure S1A. 
     Input parameters:
         None  
     Outputs:
-        Saves plot to 'figures' folder for figure 1C    
+        Saves plots to 'figures' folder for figure 1C and supplementary figure S1A
+        Saves table to 'tables' folder for supplementary table S2
+
     '''
     
     import os
     import pandas as pd
+    import numpy as np
     import re
     import plotly
     import plotly.express as px
@@ -1504,7 +1507,49 @@ def fig1():
     fig.update_layout(legend_traceorder="reversed")
     fig.update_layout(xaxis={'visible': False})    
     fig.write_image(path+'/results/figures/figure1C.png')
-    print("Figure 1C saved to 'figures' folder.")
+    
+    #SUPPLEMENTARY FIGURE S1A - TISSUE AREA PER PATIENT BY HISTOPATH SITE
+    dfTotal = pd.read_csv(path+'/data/metadata/dfTotalArea.csv',index_col=0)
+
+    #merge area dfs
+    dfMerge = pd.merge(dfTotal,df,left_index=True,right_on='patient')
+    dfMerge['%'] = dfMerge['area']/dfMerge['total_area_mm2']*100
+    dfMerge = dfMerge.sort_values('patient')
+    
+    #sum across each hist site w/in patients to plot
+    dfGroup = dfMerge.groupby(['patient','hist']).sum(numeric_only=True)['%']
+    dfGroup.unstack().fillna(0).unstack()
+    
+    #unstack to plot w plotly
+    dfUnstack = dfGroup.unstack().fillna(0)
+    dfUnstack2 = pd.DataFrame(index=dfUnstack.index,columns=dfUnstack.columns.values,data=dfUnstack.values)
+    
+    fig = px.bar(dfUnstack2,category_orders={'variable':['T','IA','TAS','NAP']},color_discrete_map=colorMap,labels={'patient':'Patient','value':'Percent Tissue Area Sampled','variable':'Histopath Annotation'})
+    fig.update_layout(legend_traceorder="reversed")
+    fig.update_layout(xaxis={'visible': False})
+    fig.write_image(path+'/results/figures/figureS1A.png')
+    
+    ##SUPPLEMENTARY TABLE S2- TISSUE AREA BY PATIENT
+    #sum tissue area evaluated per patient
+    dfPatient = pd.DataFrame(df.groupby(['patient']).sum(numeric_only=True)['area'])
+    
+    #add tx cohort annotation
+    dfPatient['Tx Cohort'] = np.where(dfPatient.index.str.contains('V'),'aCD40','Naive')
+       
+    #merge area dfs into supp table
+    dfTableS2 = pd.merge(dfTotal,dfPatient,left_index=True,right_index=True)
+    dfTableS2['%'] = dfTableS2['area']/dfTableS2['total_area_mm2']*100
+    dfTableS2 = dfTableS2.sort_values('patient')
+    dfTableS2 = dfTableS2.rename(columns={'total_area_mm2':'Total Area Resected','area':'Total Area Sampled'})
+    dfTableS2 = dfTableS2[['Tx Cohort','Total Area Sampled','Total Area Resected']]
+    dfTableS2['% Area Sampled'] = dfTableS2['Total Area Sampled']/dfTableS2['Total Area Resected']*100
+    dfTableS2 = dfTableS2.sort_values('patient')
+    dfTableS2 = dfTableS2.reset_index(drop=True)
+    dfTableS2 = dfTableS2.round(2)
+    dfTableS2.to_csv(path+'/results/tables/SupplementaryTableS2.csv')
+    
+    print("Figure 1C and Supplementary Figure S1A saved to 'figures' folder.")
+    print("Supplementary Table S2 saved to 'tables' folder.")
     print('Figure 1 complete.')
     
     
@@ -1512,13 +1557,13 @@ def fig1():
 def fig2():
     '''
     Interrogating cell states and spatial interactions within the PDAC TME.
-    This function creates figures 2A-2C and supplementary tables S3-S5.
+    This function creates figures 2A-2C and supplementary tables S4-S6.
     Input parameters:
         None  
     Outputs:
         Saves csvs to 'dfCreated' folder for files containing cell state densities, T cell functionality barcodes, and spatial interactions
         Saves plot to 'figures' folder for figures 2A-2C
-        Saves tables to 'tables' folder for supplementary tables S3-S5
+        Saves tables to 'tables' folder for supplementary tables S4-S6
     '''
     
     import os
@@ -2067,7 +2112,7 @@ def fig2():
         plt.savefig(path+'/results/figures/figure2C_'+index+'_'+row['hist']+'.png',format='png',bbox_inches='tight')
         plt.close()
             
-    #Create supplementary tables S3, S4, S5 and save to 'tables' folder    
+    #Create supplementary tables S4, S5, S6 and save to 'tables' folder    
     #load RAW COUNT files for cell states, barcodes, interactions    
     #cell state counts file
     df1 = pd.read_csv(path+'/results/dfCreated/dfCounts.csv',index_col=0)
@@ -2107,19 +2152,19 @@ def fig2():
     df3Sum = df3.sum(axis=0).sort_values(ascending=False)[:-8] #the bottom 8 are zeros (they are not included in ML models)
     
     #save summed dfs as csv files in tables folder
-    df1Sum.to_csv(path+'/results/tables/SupplementaryTable3_CellStates.csv')
-    df2Sum.to_csv(path+'/results/tables/SupplementaryTable4_Barcodes.csv')
-    df3Sum.to_csv(path+'/results/tables/SupplementaryTable5_Interactions.csv')
+    df1Sum.to_csv(path+'/results/tables/SupplementaryTableS4_CellStates.csv')
+    df2Sum.to_csv(path+'/results/tables/SupplementaryTableS5_Barcodes.csv')
+    df3Sum.to_csv(path+'/results/tables/SupplementaryTableS6_Interactions.csv')
     
     print("Figures 2A-2C saved to 'figures' folder.")
-    print("Supplementary Tables S3-S5 saved to 'tables' folder.")
+    print("Supplementary Tables S4-S6 saved to 'tables' folder.")
     print('Figure 2 complete.')
     
     
 
 def fig3():
     '''
-    Machine learning models classify aCD40-treated TMEs as having reduced T cell exhaustion phenotypes.
+    ML models classify aCD40-treated TMEs as having reduced T cell exhaustion phenotypes.
     This function creates figures 3A-3C, 3E and supplemental figures S2A-S2E
     Input parameters:
         None   
@@ -2151,7 +2196,7 @@ def fig3():
 
 def fig4():
     '''
-    Machine learning model classifies long disease-free survivors as having more T cell effector functionality following aCD40 therapy.
+    ML model classifies long disease-free survivors as having enhanced T cell effector functionality following aCD40 therapy.
     This function creates figures 4A-4C, 4E and supplemental figures S3A, S3B
     Input parameters:
         None 
